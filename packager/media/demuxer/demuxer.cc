@@ -215,6 +215,7 @@ Status Demuxer::InitializeParser() {
       base::Bind(&Demuxer::ParserInitEvent, base::Unretained(this)),
       base::Bind(&Demuxer::NewMediaSampleEvent, base::Unretained(this)),
       base::Bind(&Demuxer::NewTextSampleEvent, base::Unretained(this)),
+      base::Bind(&Demuxer::DecoderConfigChangedEvent, base::Unretained(this)),
       key_source_.get());
 
   // Handle trailing 'moov'.
@@ -340,6 +341,10 @@ bool Demuxer::NewTextSampleEvent(uint32_t track_id,
     queued_text_samples_.pop_front();
   }
   return PushTextSample(track_id, sample);
+}
+
+void Demuxer::DecoderConfigChangedEvent() {
+  NotifyDecoderConfigChanged();
 }
 
 bool Demuxer::PushMediaSample(uint32_t track_id,
