@@ -16,16 +16,6 @@ namespace shaka {
 namespace media {
 namespace {
 const size_t kStreamIndex = 0;
-
-bool IsNewSegmentIndex(int64_t new_index, int64_t current_index) {
-  return new_index != current_index &&
-         // Index is calculated from pts, which could decrease. We do not expect
-         // it to decrease by more than one segment though, which could happen
-         // only if there is a big overlap in the timeline, in which case, we
-         // will create a new segment and leave it to the player to handle it.
-         new_index != current_index - 1;
-}
-
 }  // namespace
 
 ChunkingHandler::ChunkingHandler(const ChunkingParams& chunking_params)
@@ -92,27 +82,45 @@ Status ChunkingHandler::OnMediaSample(
 
   const int64_t timestamp = sample->pts();
 
-  bool started_new_segment = false;
+  //bool started_new_segment = false;
   const bool can_start_new_segment =
       sample->is_key_frame() || !chunking_params_.segment_sap_aligned;
+
+if (sample->duration() > 1920){
+LOG(INFO) << "vid sample " << timestamp << " max segment duration " << (max_segment_time_ - segment_start_time_.value_or(1)) << " segment start time " << segment_start_time_.value_or(0) << (sample->is_key_frame() ? " - keyframe!" : "");
+}
+
   if (can_start_new_segment) {
+    
+/*
     const int64_t segment_index =
         timestamp < cue_offset_ ? 0
                                 : (timestamp - cue_offset_) / segment_duration_;
+if (sample->duration() > 1920){
+LOG(INFO) << "segment_index " << segment_index;
+}
+*/
+
+    const int64_t current_segment_duration = max_segment_time_ - segment_start_time_.value_or(0);
+    if (sample->duration() > 1920){
+    LOG(INFO) << "segment duration: " << current_segment_duration << " (" << (float)current_segment_duration / time_scale_ << ")";
+    }
+
     if (!segment_start_time_ ||
-        IsNewSegmentIndex(segment_index, current_segment_index_)) {
-      current_segment_index_ = segment_index;
-      // Reset subsegment index.
-      current_subsegment_index_ = 0;
+      current_segment_duration >= segment_duration_) {
+
+if (sample->duration() > 1920){
+LOG(INFO) << "begin segment";
+}
 
       RETURN_IF_ERROR(EndSegmentIfStarted());
       segment_start_time_ = timestamp;
       subsegment_start_time_ = timestamp;
       max_segment_time_ = timestamp + sample->duration();
-      started_new_segment = true;
+      //started_new_segment = true;
     }
   }
-  if (!started_new_segment && IsSubsegmentEnabled()) {
+ /* if (!started_new_segment && IsSubsegmentEnabled()) {
     const bool can_start_new_subsegment =
         sample->is_key_frame() || !chunking_params_.subsegment_sap_aligned;
     if (can_start_new_subsegment) {
@@ -125,7 +133,7 @@ Status ChunkingHandler::OnMediaSample(
         subsegment_start_time_ = timestamp;
       }
     }
-  }
+  }*/
 
   VLOG(3) << "Sample ts: " << timestamp << " "
           << " duration: " << sample->duration() << " scale: " << time_scale_
