@@ -174,8 +174,10 @@ const uint64_t kNanosecondsPerSecond = 1000000000ull;
 
 }  // namespace
 
-MP4MediaParser::MP4MediaParser()
-    : state_(kWaitingForInit),
+MP4MediaParser::MP4MediaParser(
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : MediaParser(discontinuity_tracker),
+      state_(kWaitingForInit),
       decryption_key_source_(NULL),
       moof_head_(0),
       mdat_tail_(0) {}

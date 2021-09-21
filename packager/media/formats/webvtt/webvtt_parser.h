@@ -22,7 +22,7 @@ namespace media {
 // Used to parse a WebVTT source into Cues that will be sent downstream.
 class WebVttParser : public MediaParser {
  public:
-  WebVttParser();
+  WebVttParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
 
   void Init(const InitCB& init_cb,
             const NewMediaSampleCB& new_media_sample_cb,

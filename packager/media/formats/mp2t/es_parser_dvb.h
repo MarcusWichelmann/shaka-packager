@@ -21,6 +21,7 @@ namespace mp2t {
 class EsParserDvb : public EsParser {
  public:
   EsParserDvb(uint32_t pid,
+              std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
               const NewStreamInfoCB& new_stream_info_cb,
               const EmitTextSampleCB& emit_sample_cb,
               const uint8_t* descriptor,

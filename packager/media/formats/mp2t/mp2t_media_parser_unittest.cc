@@ -29,7 +29,8 @@ class Mp2tMediaParserTest : public testing::Test {
         video_frame_count_(0),
         video_min_dts_(kNoTimestamp),
         video_max_dts_(kNoTimestamp) {
-    parser_.reset(new Mp2tMediaParser());
+    auto discontinuity_tracker = std::make_shared<DiscontinuityTracker>();
+    parser_.reset(new Mp2tMediaParser(discontinuity_tracker));
   }
 
  protected:

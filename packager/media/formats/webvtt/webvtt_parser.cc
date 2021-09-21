@@ -188,7 +188,9 @@ void ParseSettings(const std::string& id,
 
 }  // namespace
 
-WebVttParser::WebVttParser() {}
+WebVttParser::WebVttParser(
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : MediaParser(discontinuity_tracker) {}
 
 void WebVttParser::Init(const InitCB& init_cb,
                         const NewMediaSampleCB& new_media_sample_cb,

@@ -47,7 +47,8 @@ void ExpectPlainCueWithBody(const TextFragment& fragment,
 class WebVttParserTest : public testing::Test {
  protected:
   void SetUpAndInitialize() {
-    parser_ = std::make_shared<WebVttParser>();
+    auto discontinuity_tracker = std::make_shared<DiscontinuityTracker>();
+    parser_ = std::make_shared<WebVttParser>(discontinuity_tracker);
     parser_->Init(
         base::Bind(&WebVttParserTest::InitCB, base::Unretained(this)),
         base::Bind(&WebVttParserTest::NewMediaSampleCB, base::Unretained(this)),

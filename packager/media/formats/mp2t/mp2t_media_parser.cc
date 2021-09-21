@@ -148,8 +148,10 @@ void PidState::ResetState() {
   continuity_counter_ = -1;
 }
 
-Mp2tMediaParser::Mp2tMediaParser()
-    : sbr_in_mimetype_(false),
+Mp2tMediaParser::Mp2tMediaParser(
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : MediaParser(discontinuity_tracker),
+      sbr_in_mimetype_(false),
       is_initialized_(false) {
 }
 
@@ -295,21 +297,25 @@ void Mp2tMediaParser::RegisterPes(int pmt_pid,
                                  base::Unretained(this), pes_pid);
   switch (stream_type) {
     case TsStreamType::kAvc:
-      es_parser.reset(new EsParserH264(pes_pid, on_new_stream, on_emit_media));
+      es_parser.reset(new EsParserH264(pes_pid, discontinuity_tracker_,
+                                       on_new_stream, on_emit_media));
       break;
     case TsStreamType::kHevc:
-      es_parser.reset(new EsParserH265(pes_pid, on_new_stream, on_emit_media));
+      es_parser.reset(new EsParserH265(pes_pid, discontinuity_tracker_,
+                                       on_new_stream, on_emit_media));
       break;
     case TsStreamType::kAdtsAac:
     case TsStreamType::kMpeg1Audio:
     case TsStreamType::kAc3:
       es_parser.reset(
-          new EsParserAudio(pes_pid, static_cast<TsStreamType>(stream_type),
+          new EsParserAudio(pes_pid, discontinuity_tracker_,
+                            static_cast<TsStreamType>(stream_type),
                             on_new_stream, on_emit_media, sbr_in_mimetype_));
       pid_type = PidState::kPidAudioPes;
       break;
     case TsStreamType::kDvbSubtitles:
-      es_parser.reset(new EsParserDvb(pes_pid, on_new_stream, on_emit_text,
+      es_parser.reset(new EsParserDvb(pes_pid, discontinuity_tracker_,
+                                      on_new_stream, on_emit_text,
                                       descriptor, descriptor_length));
       pid_type = PidState::kPidTextPes;
       break;

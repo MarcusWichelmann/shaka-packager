@@ -13,6 +13,7 @@
 #include "packager/base/callback.h"
 #include "packager/base/compiler_specific.h"
 #include "packager/media/base/container_names.h"
+#include "packager/media/base/discontinuity_tracker.h"
 
 namespace shaka {
 namespace media {
@@ -24,8 +25,10 @@ class TextSample;
 
 class MediaParser {
  public:
-  MediaParser() {}
-  virtual ~MediaParser() {}
+  /// @param discontinuity_tracker specifies the discontinuity tracker to
+  ///        notify about decoder config parameter changes.
+  explicit MediaParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
+  virtual ~MediaParser() = default;
 
   /// Called upon completion of parser initialization.
   /// @param stream_info contains the stream info of all the elementary streams
@@ -75,6 +78,9 @@ class MediaParser {
   /// Should be called when there is new data to parse.
   /// @return true if successful.
   virtual bool Parse(const uint8_t* buf, int size) WARN_UNUSED_RESULT = 0;
+
+protected:
+  std::shared_ptr<DiscontinuityTracker> discontinuity_tracker_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(MediaParser);

@@ -13,6 +13,7 @@
 
 #include "packager/base/compiler_specific.h"
 #include "packager/media/base/container_names.h"
+#include "packager/media/base/discontinuity_tracker.h"
 #include "packager/media/origin/origin_handler.h"
 #include "packager/status.h"
 
@@ -35,7 +36,10 @@ class Demuxer : public OriginHandler {
   /// @param file_name specifies the input source. It uses prefix matching to
   ///        create a proper File object. The user can extend File to support
   ///        a custom File object with its own prefix.
-  explicit Demuxer(const std::string& file_name);
+  /// @param discontinuity_tracker specifies the discontinuity tracker to
+  ///        notify about decoder config parameter changes.
+  explicit Demuxer(const std::string& file_name,
+                   std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~Demuxer();
 
   /// Set the KeySource for media decryption.
@@ -128,6 +132,7 @@ class Demuxer : public OriginHandler {
 
   std::string file_name_;
   File* media_file_ = nullptr;
+  std::shared_ptr<DiscontinuityTracker> discontinuity_tracker_;
   // A stream is considered ready after receiving the stream info.
   bool all_streams_ready_ = false;
   // Queued samples received in NewSampleEvent() before ParserInitEvent().

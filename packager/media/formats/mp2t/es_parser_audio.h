@@ -28,6 +28,7 @@ class AudioHeader;
 class EsParserAudio : public EsParser {
  public:
   EsParserAudio(uint32_t pid,
+                std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                 TsStreamType stream_type,
                 const NewStreamInfoCB& new_stream_info_cb,
                 const EmitSampleCB& emit_sample_cb,

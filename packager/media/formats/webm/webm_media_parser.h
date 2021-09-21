@@ -17,7 +17,7 @@ class WebMClusterParser;
 
 class WebMMediaParser : public MediaParser {
  public:
-  WebMMediaParser();
+  WebMMediaParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~WebMMediaParser() override;
 
   /// @name MediaParser implementation overrides.

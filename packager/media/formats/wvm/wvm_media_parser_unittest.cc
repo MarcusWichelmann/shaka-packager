@@ -72,7 +72,8 @@ class WvmMediaParserTest : public testing::Test {
         encrypted_sample_count_(0),
         video_max_dts_(kNoTimestamp),
         current_track_id_(-1) {
-    parser_.reset(new WvmMediaParser());
+    auto discontinuity_tracker = std::make_shared<DiscontinuityTracker>();
+    parser_.reset(new WvmMediaParser(discontinuity_tracker));
     key_source_.reset(new MockKeySource());
     encryption_key_.key.resize(16);
     encryption_key_.key.assign(kExpectedAssetKey, kExpectedAssetKey + 16);

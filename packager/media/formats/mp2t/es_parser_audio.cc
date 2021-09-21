@@ -88,11 +88,12 @@ static bool LookForSyncWord(const uint8_t* raw_es,
 }
 
 EsParserAudio::EsParserAudio(uint32_t pid,
+                             std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                              TsStreamType stream_type,
                              const NewStreamInfoCB& new_stream_info_cb,
                              const EmitSampleCB& emit_sample_cb,
                              bool sbr_in_mimetype)
-    : EsParser(pid),
+    : EsParser(pid, discontinuity_tracker),
       stream_type_(stream_type),
       new_stream_info_cb_(new_stream_info_cb),
       emit_sample_cb_(emit_sample_cb),
