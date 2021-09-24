@@ -475,7 +475,7 @@ void MediaPlaylist::AddDiscontinuity() {
 
 bool MediaPlaylist::WriteToFile(const std::string& file_path) {
   if (!target_duration_set_) {
-    SetTargetDuration(ceil(GetLongestSegmentDuration()));
+    SetTargetDuration(round(GetLongestSegmentDuration()));
   }
 
   std::string content = CreatePlaylistHeader(

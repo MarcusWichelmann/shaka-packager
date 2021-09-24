@@ -383,8 +383,10 @@ bool SimpleHlsNotifier::NotifyNewSegment(uint32_t stream_id,
                              start_byte_offset, size);
 
   // Update target duration.
+  // Use round() instead of ceil() here because the HLS spec allows the segment
+  // duration to be 0.5 seconds higher than the target duration.
   int32_t longest_segment_duration =
-      static_cast<int32_t>(ceil(media_playlist->GetLongestSegmentDuration()));
+      static_cast<int32_t>(round(media_playlist->GetLongestSegmentDuration()));
   bool target_duration_updated = false;
   if (longest_segment_duration > target_duration_) {
     target_duration_ = longest_segment_duration;
