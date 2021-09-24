@@ -124,10 +124,13 @@ class MuxerListener {
   /// @param duration is the duration of the segment, relative to the timescale
   ///        specified by MediaInfo passed to OnMediaStart().
   /// @param segment_file_size is the segment size in bytes.
+  /// @param is_discontinuous specifies whether this is the first segment
+  ///        after a discontinuity.
   virtual void OnNewSegment(const std::string& segment_name,
                             int64_t start_time,
                             int64_t duration,
-                            uint64_t segment_file_size) = 0;
+                            uint64_t segment_file_size,
+                            bool is_discontinuous) = 0;
 
   /// Called when there is a new key frame. For Video only. Note that it should
   /// be called before OnNewSegment is called on the containing segment.

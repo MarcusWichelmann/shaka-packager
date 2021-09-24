@@ -362,7 +362,8 @@ bool SimpleHlsNotifier::NotifyNewSegment(uint32_t stream_id,
                                          int64_t start_time,
                                          int64_t duration,
                                          uint64_t start_byte_offset,
-                                         uint64_t size) {
+                                         uint64_t size,
+                                         bool is_discontinuous) {
   base::AutoLock auto_lock(lock_);
   auto stream_iterator = stream_map_.find(stream_id);
   if (stream_iterator == stream_map_.end()) {
@@ -370,6 +371,11 @@ bool SimpleHlsNotifier::NotifyNewSegment(uint32_t stream_id,
     return false;
   }
   auto& media_playlist = stream_iterator->second->media_playlist;
+
+  if (is_discontinuous) {
+    media_playlist->AddDiscontinuity();
+  }
+
   const std::string& segment_url =
       GenerateSegmentUrl(segment_name, hls_params().base_url,
                          master_playlist_dir_, media_playlist->file_name());
@@ -377,8 +383,10 @@ bool SimpleHlsNotifier::NotifyNewSegment(uint32_t stream_id,
                              start_byte_offset, size);
 
   // Update target duration.
+  // Use round() instead of ceil() here because the HLS spec allows the segment
+  // duration to be 0.5 seconds higher than the target duration.
   int32_t longest_segment_duration =
-      static_cast<int32_t>(ceil(media_playlist->GetLongestSegmentDuration()));
+      static_cast<int32_t>(round(media_playlist->GetLongestSegmentDuration()));
   bool target_duration_updated = false;
   if (longest_segment_duration > target_duration_) {
     target_duration_ = longest_segment_duration;

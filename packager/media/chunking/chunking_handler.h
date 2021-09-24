@@ -12,6 +12,7 @@
 
 #include "packager/base/logging.h"
 #include "packager/base/optional.h"
+#include "packager/media/base/discontinuity_tracker.h"
 #include "packager/media/base/media_handler.h"
 #include "packager/media/public/chunking_params.h"
 
@@ -38,7 +39,8 @@ namespace media {
 /// aligned if they have aligned GoPs.
 class ChunkingHandler : public MediaHandler {
  public:
-  explicit ChunkingHandler(const ChunkingParams& chunking_params);
+  explicit ChunkingHandler(const ChunkingParams& chunking_params,
+      std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~ChunkingHandler() override = default;
 
  protected:
@@ -59,7 +61,7 @@ class ChunkingHandler : public MediaHandler {
   Status OnCueEvent(std::shared_ptr<const CueEvent> event);
   Status OnMediaSample(std::shared_ptr<const MediaSample> sample);
 
-  Status EndSegmentIfStarted() const;
+  Status EndSegmentIfStarted(bool is_discontinuous = false) const;
   Status EndSubsegmentIfStarted() const;
 
   bool IsSubsegmentEnabled() {
@@ -68,6 +70,11 @@ class ChunkingHandler : public MediaHandler {
   }
 
   const ChunkingParams chunking_params_;
+
+  std::shared_ptr<DiscontinuityTracker> discontinuity_tracker_;
+
+  // This is used to detect new discontinuity timestamps.
+  int64_t last_handled_discontinuity_ = kNoTimestamp;
 
   // Segment and subsegment duration in stream's time scale.
   int64_t segment_duration_ = 0;

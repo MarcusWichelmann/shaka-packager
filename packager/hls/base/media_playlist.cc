@@ -475,9 +475,13 @@ void MediaPlaylist::AddPlacementOpportunity() {
   entries_.emplace_back(new PlacementOpportunityEntry());
 }
 
+void MediaPlaylist::AddDiscontinuity() {
+  entries_.emplace_back(new DiscontinuityEntry());
+}
+
 bool MediaPlaylist::WriteToFile(const std::string& file_path) {
   if (!target_duration_set_) {
-    SetTargetDuration(ceil(GetLongestSegmentDuration()));
+    SetTargetDuration(round(GetLongestSegmentDuration()));
   }
 
   std::string content = CreatePlaylistHeader(

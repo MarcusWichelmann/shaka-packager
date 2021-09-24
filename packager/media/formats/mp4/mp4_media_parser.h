@@ -29,7 +29,7 @@ struct ProtectionSystemSpecificHeader;
 
 class MP4MediaParser : public MediaParser {
  public:
-  MP4MediaParser();
+  MP4MediaParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~MP4MediaParser() override;
 
   /// @name MediaParser implementation overrides.

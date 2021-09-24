@@ -31,8 +31,9 @@ EsParserH26x::EsParserH26x(
     Nalu::CodecType type,
     std::unique_ptr<H26xByteToUnitStreamConverter> stream_converter,
     uint32_t pid,
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
     const EmitSampleCB& emit_sample_cb)
-    : EsParser(pid),
+    : EsParser(pid, discontinuity_tracker),
       emit_sample_cb_(emit_sample_cb),
       type_(type),
       es_queue_(new media::OffsetByteQueue()),
@@ -307,7 +308,7 @@ bool EsParserH26x::EmitFrame(int64_t access_unit_pos,
   }
 
   // Update the video decoder configuration if needed.
-  RCHECK(UpdateVideoDecoderConfig(pps_id));
+  RCHECK(UpdateVideoDecoderConfig(pps_id, current_timing_desc.pts));
 
   // Create the media sample, emitting always the previous sample after
   // calculating its duration.

@@ -48,11 +48,12 @@ bool ParseSubtitlingDescriptor(
 }  // namespace
 
 EsParserDvb::EsParserDvb(uint32_t pid,
+                         std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                          const NewStreamInfoCB& new_stream_info_cb,
                          const EmitTextSampleCB& emit_sample_cb,
                          const uint8_t* descriptor,
                          size_t descriptor_length)
-    : EsParser(pid),
+    : EsParser(pid, discontinuity_tracker),
       new_stream_info_cb_(new_stream_info_cb),
       emit_sample_cb_(emit_sample_cb) {
   if (!ParseSubtitlingDescriptor(descriptor, descriptor_length, &languages_)) {

@@ -58,12 +58,15 @@ class HlsNotifier {
   /// @param start_byte_offset is the offset of where the subsegment starts.
   ///        This should be 0 if the whole segment is a subsegment.
   /// @param size is the size in bytes.
+  /// @param is_discontinuous specifies whether this is the first segment
+  ///        after a discontinuity.
   virtual bool NotifyNewSegment(uint32_t stream_id,
                                 const std::string& segment_name,
                                 int64_t start_time,
                                 int64_t duration,
                                 uint64_t start_byte_offset,
-                                uint64_t size) = 0;
+                                uint64_t size,
+                                bool is_discontinuous) = 0;
 
   /// Called on every key frame. For Video only.
   /// @param stream_id is the value set by NotifyNewStream().

@@ -50,7 +50,7 @@ struct PrevSampleData {
 
 class WvmMediaParser : public MediaParser {
  public:
-  WvmMediaParser();
+  WvmMediaParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~WvmMediaParser() override;
 
   /// @name MediaParser implementation overrides.

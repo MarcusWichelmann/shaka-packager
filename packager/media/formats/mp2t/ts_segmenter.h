@@ -55,10 +55,13 @@ class TsSegmenter {
   ///        stream's time scale.
   /// @param duration is the segment's duration in the input stream's time
   ///        scale.
+  /// @param is_discontinuous specifies whether this is the first segment
+  ///        after a discontinuity.
   // TODO(kqyang): Remove the usage of segment start timestamp and duration in
   // xx_segmenter, which could cause confusions on which is the source of truth
   // as the segment start timestamp and duration could be tracked locally.
-  Status FinalizeSegment(int64_t start_timestamp, int64_t duration);
+  Status FinalizeSegment(int64_t start_timestamp, int64_t duration,
+      bool is_discontinuous);
 
   /// Only for testing.
   void InjectTsWriterForTesting(std::unique_ptr<TsWriter> writer);

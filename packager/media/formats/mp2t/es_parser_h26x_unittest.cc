@@ -82,6 +82,7 @@ class TestableEsParser : public EsParserH26x {
                      std::unique_ptr<H26xByteToUnitStreamConverter>(
                          new FakeByteToUnitStreamConverter(codec_type)),
                      0,
+                     std::make_shared<DiscontinuityTracker>(),
                      emit_sample_cb),
         codec_type_(codec_type),
         new_stream_info_cb_(new_stream_info_cb),
@@ -110,7 +111,7 @@ class TestableEsParser : public EsParserH26x {
     return true;
   }
 
-  bool UpdateVideoDecoderConfig(int pps_id) override {
+  bool UpdateVideoDecoderConfig(int pps_id, int64_t pts) override {
     if (decoder_config_check_pending_) {
       EXPECT_EQ(kTestPpsId, pps_id);
       new_stream_info_cb_.Run(nullptr);

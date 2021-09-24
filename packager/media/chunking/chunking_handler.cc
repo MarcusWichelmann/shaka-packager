@@ -28,8 +28,10 @@ bool IsNewSegmentIndex(int64_t new_index, int64_t current_index) {
 
 }  // namespace
 
-ChunkingHandler::ChunkingHandler(const ChunkingParams& chunking_params)
-    : chunking_params_(chunking_params) {
+ChunkingHandler::ChunkingHandler(const ChunkingParams& chunking_params,
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : chunking_params_(chunking_params),
+      discontinuity_tracker_(discontinuity_tracker) {
   CHECK_NE(chunking_params.segment_duration_in_seconds, 0u);
 }
 
@@ -96,16 +98,32 @@ Status ChunkingHandler::OnMediaSample(
   const bool can_start_new_segment =
       sample->is_key_frame() || !chunking_params_.segment_sap_aligned;
   if (can_start_new_segment) {
+    // Is this the first segmentation opportunity after a detected discontinuity?
+    bool is_discontinuous = false;
+    int64_t last_discontinuity = discontinuity_tracker_->GetLastDiscontinuity();
+    if (timestamp >= last_discontinuity &&
+        last_discontinuity != last_handled_discontinuity_) {
+      last_handled_discontinuity_ = last_discontinuity;
+      is_discontinuous = true;
+    }
+
     const int64_t segment_index =
         timestamp < cue_offset_ ? 0
                                 : (timestamp - cue_offset_) / segment_duration_;
-    if (!segment_start_time_ ||
+    if (!segment_start_time_ || is_discontinuous ||
         IsNewSegmentIndex(segment_index, current_segment_index_)) {
-      current_segment_index_ = segment_index;
+
+      // Don't update the current segment index when the segmentation was caused
+      // by a discontinuity to make sure that the following segment doesn't get
+      // longer than wanted
+      if (!is_discontinuous) {
+        current_segment_index_ = segment_index;
+      }
+
       // Reset subsegment index.
       current_subsegment_index_ = 0;
 
-      RETURN_IF_ERROR(EndSegmentIfStarted());
+      RETURN_IF_ERROR(EndSegmentIfStarted(is_discontinuous));
       segment_start_time_ = timestamp;
       subsegment_start_time_ = timestamp;
       max_segment_time_ = timestamp + sample->duration();
@@ -144,13 +162,14 @@ Status ChunkingHandler::OnMediaSample(
   return DispatchMediaSample(kStreamIndex, std::move(sample));
 }
 
-Status ChunkingHandler::EndSegmentIfStarted() const {
+Status ChunkingHandler::EndSegmentIfStarted(bool is_discontinuous) const {
   if (!segment_start_time_)
     return Status::OK;
 
   auto segment_info = std::make_shared<SegmentInfo>();
   segment_info->start_timestamp = segment_start_time_.value();
   segment_info->duration = max_segment_time_ - segment_start_time_.value();
+  segment_info->is_discontinuous = is_discontinuous;
   return DispatchSegmentInfo(kStreamIndex, std::move(segment_info));
 }
 

@@ -210,7 +210,7 @@ TEST_F(TsSegmenterTest, PassedSegmentDuration) {
   EXPECT_CALL(mock_listener,
               OnNewSegment("memory://file1.ts",
 		           kFirstPts * kTimeScale / kInputTimescale,
-                           kTimeScale * 11, _));
+                           kTimeScale * 11, _, _));
 
   Sequence writer_sequence;
   EXPECT_CALL(*mock_ts_writer_, NewSegment(_))
@@ -267,7 +267,7 @@ TEST_F(TsSegmenterTest, PassedSegmentDuration) {
   EXPECT_OK(segmenter.Initialize(*stream_info));
   segmenter.InjectTsWriterForTesting(std::move(mock_ts_writer_));
   EXPECT_OK(segmenter.AddSample(*sample1));
-  EXPECT_OK(segmenter.FinalizeSegment(kFirstPts, sample1->duration()));
+  EXPECT_OK(segmenter.FinalizeSegment(kFirstPts, sample1->duration(), false));
   EXPECT_OK(segmenter.AddSample(*sample2));
 }
 
@@ -324,7 +324,7 @@ TEST_F(TsSegmenterTest, FinalizeSegment) {
   EXPECT_OK(segmenter.Initialize(*stream_info));
   segmenter.InjectTsWriterForTesting(std::move(mock_ts_writer_));
 
-  EXPECT_OK(segmenter.FinalizeSegment(0, 100 /* arbitrary duration*/));
+  EXPECT_OK(segmenter.FinalizeSegment(0, 100 /* arbitrary duration*/, false));
 }
 
 TEST_F(TsSegmenterTest, EncryptedSample) {
@@ -394,7 +394,7 @@ TEST_F(TsSegmenterTest, EncryptedSample) {
       .InSequence(pes_packet_sequence)
       .WillOnce(Return(new PesPacket()));
 
-  EXPECT_CALL(mock_listener, OnNewSegment("memory://file1.ts", _, _, _));
+  EXPECT_CALL(mock_listener, OnNewSegment("memory://file1.ts", _, _, _, _));
 
   MockTsWriter* mock_ts_writer_raw = mock_ts_writer_.get();
 
@@ -404,7 +404,7 @@ TEST_F(TsSegmenterTest, EncryptedSample) {
   EXPECT_OK(segmenter.Initialize(*stream_info));
   segmenter.InjectTsWriterForTesting(std::move(mock_ts_writer_));
   EXPECT_OK(segmenter.AddSample(*sample1));
-  EXPECT_OK(segmenter.FinalizeSegment(1, sample1->duration()));
+  EXPECT_OK(segmenter.FinalizeSegment(1, sample1->duration(), false));
   // Signal encrypted if sample is encrypted.
   EXPECT_CALL(*mock_ts_writer_raw, SignalEncrypted());
   sample2->set_is_encrypted(true);

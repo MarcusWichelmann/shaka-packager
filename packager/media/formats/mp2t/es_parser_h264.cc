@@ -20,12 +20,14 @@ namespace media {
 namespace mp2t {
 
 EsParserH264::EsParserH264(uint32_t pid,
+                           std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                            const NewStreamInfoCB& new_stream_info_cb,
                            const EmitSampleCB& emit_sample_cb)
     : EsParserH26x(Nalu::kH264,
                    std::unique_ptr<H26xByteToUnitStreamConverter>(
                        new H264ByteToUnitStreamConverter()),
                    pid,
+                   discontinuity_tracker,
                    emit_sample_cb),
       new_stream_info_cb_(new_stream_info_cb),
       decoder_config_check_pending_(false),
@@ -108,7 +110,7 @@ bool EsParserH264::ProcessNalu(const Nalu& nalu,
   return true;
 }
 
-bool EsParserH264::UpdateVideoDecoderConfig(int pps_id) {
+bool EsParserH264::UpdateVideoDecoderConfig(int pps_id, int64_t pts) {
   // Update the video decoder configuration if needed.
   if (!decoder_config_check_pending_)
     return true;
@@ -145,6 +147,9 @@ bool EsParserH264::UpdateVideoDecoderConfig(int pps_id) {
       // video resolution changes) should be treated as errors.
       LOG(WARNING) << "H.264 decoder configuration has changed.";
       last_video_decoder_config_->set_codec_config(decoder_config_record);
+
+      // Track the stream discontinuity.
+      discontinuity_tracker_->TrackDecoderConfigChange(pts, kMpeg2Timescale);
     }
     return true;
   }

@@ -87,8 +87,10 @@ namespace shaka {
 namespace media {
 namespace wvm {
 
-WvmMediaParser::WvmMediaParser()
-    : is_initialized_(false),
+WvmMediaParser::WvmMediaParser(
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : MediaParser(discontinuity_tracker),
+      is_initialized_(false),
       parse_state_(StartCode1),
       skip_bytes_(0),
       metadata_is_complete_(false),

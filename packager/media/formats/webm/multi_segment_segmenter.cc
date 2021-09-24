@@ -24,10 +24,11 @@ MultiSegmentSegmenter::~MultiSegmentSegmenter() {}
 
 Status MultiSegmentSegmenter::FinalizeSegment(int64_t start_timestamp,
                                               int64_t duration_timestamp,
-                                              bool is_subsegment) {
+                                              bool is_subsegment,
+                                              bool is_discontinuous) {
   CHECK(cluster());
   RETURN_IF_ERROR(Segmenter::FinalizeSegment(
-      start_timestamp, duration_timestamp, is_subsegment));
+      start_timestamp, duration_timestamp, is_subsegment, is_discontinuous));
   if (!cluster()->Finalize())
     return Status(error::FILE_FAILURE, "Error finalizing segment.");
 
@@ -51,7 +52,7 @@ Status MultiSegmentSegmenter::FinalizeSegment(int64_t start_timestamp,
     if (muxer_listener()) {
       const uint64_t size = cluster()->Size();
       muxer_listener()->OnNewSegment(segment_name, start_timestamp,
-                                     duration_timestamp, size);
+                                     duration_timestamp, size, is_discontinuous);
     }
     VLOG(1) << "WEBM file '" << segment_name << "' finalized.";
   }

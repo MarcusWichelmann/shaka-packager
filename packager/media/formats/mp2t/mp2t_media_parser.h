@@ -28,7 +28,7 @@ class TsSection;
 
 class Mp2tMediaParser : public MediaParser {
  public:
-  Mp2tMediaParser();
+  Mp2tMediaParser(std::shared_ptr<DiscontinuityTracker> discontinuity_tracker);
   ~Mp2tMediaParser() override;
 
   /// @name MediaParser implementation overrides.

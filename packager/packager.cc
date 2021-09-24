@@ -28,6 +28,7 @@
 #include "packager/hls/base/simple_hls_notifier.h"
 #include "packager/media/base/cc_stream_filter.h"
 #include "packager/media/base/container_names.h"
+#include "packager/media/base/discontinuity_tracker.h"
 #include "packager/media/base/fourccs.h"
 #include "packager/media/base/key_source.h"
 #include "packager/media/base/language_utils.h"
@@ -447,8 +448,9 @@ bool StreamInfoToTextMediaInfo(const StreamDescriptor& stream_descriptor,
 /// |new_demuxer| will be set and Status::OK will be returned.
 Status CreateDemuxer(const StreamDescriptor& stream,
                      const PackagingParams& packaging_params,
+                     std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                      std::shared_ptr<Demuxer>* new_demuxer) {
-  std::shared_ptr<Demuxer> demuxer = std::make_shared<Demuxer>(stream.input);
+  std::shared_ptr<Demuxer> demuxer = std::make_shared<Demuxer>(stream.input, discontinuity_tracker);
   demuxer->set_dump_stream_info(packaging_params.test_params.dump_stream_info);
 
   if (packaging_params.decryption_params.key_provider != KeyProvider::kNone) {
@@ -592,6 +594,12 @@ Status CreateAudioVideoJobs(
   DCHECK(muxer_listener_factory);
   DCHECK(muxer_factory);
   DCHECK(job_manager);
+
+  // The discontinuity tracker is shared among all streams so any demuxer
+  // can notify all muxers.
+  std::shared_ptr<DiscontinuityTracker> discontinuity_tracker =
+      std::make_shared<DiscontinuityTracker>();
+
   // Store all the demuxers in a map so that we can look up a stream's demuxer.
   // This is step one in making this part of the pipeline less dependant on
   // order.
@@ -605,7 +613,8 @@ Status CreateAudioVideoJobs(
     }
 
     RETURN_IF_ERROR(
-        CreateDemuxer(stream, packaging_params, &sources[stream.input]));
+        CreateDemuxer(stream, packaging_params, discontinuity_tracker,
+            &sources[stream.input]));
     cue_aligners[stream.input] =
         sync_points ? std::make_shared<CueAlignmentHandler>(sync_points)
                     : nullptr;
@@ -658,7 +667,7 @@ Status CreateAudioVideoJobs(
       }
       if (!is_text) {
         handlers.emplace_back(std::make_shared<ChunkingHandler>(
-            packaging_params.chunking_params));
+            packaging_params.chunking_params, discontinuity_tracker));
         handlers.emplace_back(CreateEncryptionHandler(packaging_params, stream,
                                                       encryption_key_source));
       }

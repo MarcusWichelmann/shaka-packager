@@ -73,8 +73,11 @@ bool GetStreamIndex(const std::string& stream_label, size_t* stream_index) {
 namespace shaka {
 namespace media {
 
-Demuxer::Demuxer(const std::string& file_name)
-    : file_name_(file_name), buffer_(new uint8_t[kBufSize]) {}
+Demuxer::Demuxer(const std::string& file_name,
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : file_name_(file_name),
+      discontinuity_tracker_(discontinuity_tracker),
+      buffer_(new uint8_t[kBufSize]) {}
 
 Demuxer::~Demuxer() {
   if (media_file_)
@@ -176,10 +179,10 @@ Status Demuxer::InitializeParser() {
   // Initialize media parser.
   switch (container_name_) {
     case CONTAINER_MOV:
-      parser_.reset(new mp4::MP4MediaParser());
+      parser_.reset(new mp4::MP4MediaParser(discontinuity_tracker_));
       break;
     case CONTAINER_MPEG2TS:
-      parser_.reset(new mp2t::Mp2tMediaParser());
+      parser_.reset(new mp2t::Mp2tMediaParser(discontinuity_tracker_));
       break;
       // Widevine classic (WVM) is derived from MPEG2PS. We do not support
       // non-WVM MPEG2PS file, thus we do not differentiate between the two.
@@ -189,13 +192,13 @@ Status Demuxer::InitializeParser() {
     case CONTAINER_MPEG2PS:
       FALLTHROUGH_INTENDED;
     case CONTAINER_WVM:
-      parser_.reset(new wvm::WvmMediaParser());
+      parser_.reset(new wvm::WvmMediaParser(discontinuity_tracker_));
       break;
     case CONTAINER_WEBM:
-      parser_.reset(new WebMMediaParser());
+      parser_.reset(new WebMMediaParser(discontinuity_tracker_));
       break;
     case CONTAINER_WEBVTT:
-      parser_.reset(new WebVttParser());
+      parser_.reset(new WebVttParser(discontinuity_tracker_));
       break;
     case CONTAINER_UNKNOWN: {
       const int64_t kDumpSizeLimit = 512;

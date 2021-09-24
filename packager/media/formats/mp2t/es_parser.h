@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "packager/base/callback.h"
+#include "packager/media/base/discontinuity_tracker.h"
 
 namespace shaka {
 namespace media {
@@ -24,7 +25,10 @@ class EsParser {
   typedef base::Callback<void(std::shared_ptr<MediaSample>)> EmitSampleCB;
   typedef base::Callback<void(std::shared_ptr<TextSample>)> EmitTextSampleCB;
 
-  EsParser(uint32_t pid) : pid_(pid) {}
+  EsParser(uint32_t pid,
+      std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+      : discontinuity_tracker_(discontinuity_tracker), 
+        pid_(pid) {}
   virtual ~EsParser() {}
 
   // ES parsing.
@@ -41,6 +45,9 @@ class EsParser {
   virtual void Reset() = 0;
 
   uint32_t pid() { return pid_; }
+
+ protected:
+  std::shared_ptr<DiscontinuityTracker> discontinuity_tracker_;
 
  private:
   uint32_t pid_;

@@ -169,6 +169,7 @@ void EsParserH264Test::ProcessPesPackets(
 
   EsParserH264 es_parser(
       0,
+      std::make_shared<DiscontinuityTracker>(),
       base::Bind(&EsParserH264Test::NewVideoConfig, base::Unretained(this)),
       base::Bind(&EsParserH264Test::EmitSample, base::Unretained(this)));
 

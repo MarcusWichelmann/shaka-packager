@@ -30,6 +30,7 @@ class EsParserH26x : public EsParser {
   EsParserH26x(Nalu::CodecType type,
                std::unique_ptr<H26xByteToUnitStreamConverter> stream_converter,
                uint32_t pid,
+               std::shared_ptr<DiscontinuityTracker> discontinuity_tracker,
                const EmitSampleCB& emit_sample_cb);
   ~EsParserH26x() override;
 
@@ -76,7 +77,7 @@ class EsParserH26x : public EsParser {
 
   // Update the video decoder config.
   // Return true if successful.
-  virtual bool UpdateVideoDecoderConfig(int pps_id) = 0;
+  virtual bool UpdateVideoDecoderConfig(int pps_id, int64_t pts) = 0;
 
   // Finds the NAL unit by finding the next start code.  This will modify the
   // search position.

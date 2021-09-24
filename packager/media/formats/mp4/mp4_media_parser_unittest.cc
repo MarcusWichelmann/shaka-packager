@@ -44,7 +44,8 @@ namespace mp4 {
 class MP4MediaParserTest : public testing::Test {
  public:
   MP4MediaParserTest() : num_streams_(0), num_samples_(0) {
-    parser_.reset(new MP4MediaParser());
+    auto discontinuity_tracker = std::make_shared<DiscontinuityTracker>();
+    parser_.reset(new MP4MediaParser(discontinuity_tracker));
   }
 
  protected:

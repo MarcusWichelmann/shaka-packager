@@ -233,7 +233,7 @@ TEST_F(SimpleHlsNotifierTest, NotifyNewSegment) {
                                        "groupid", &stream_id));
 
   EXPECT_TRUE(notifier.NotifyNewSegment(stream_id, segment_name, kStartTime,
-                                        kDuration, 203, kSize));
+                                        kDuration, 203, kSize, false));
 
   Mock::VerifyAndClearExpectations(mock_master_playlist_ptr);
   Mock::VerifyAndClearExpectations(mock_media_playlist);
@@ -273,7 +273,7 @@ TEST_F(SimpleHlsNotifierTest, NotifyKeyFrame) {
 TEST_F(SimpleHlsNotifierTest, NotifyNewSegmentWithoutStreamsRegistered) {
   SimpleHlsNotifier notifier(hls_params_);
   EXPECT_TRUE(notifier.Init());
-  EXPECT_FALSE(notifier.NotifyNewSegment(1u, "anything", 0u, 0u, 0u, 0u));
+  EXPECT_FALSE(notifier.NotifyNewSegment(1u, "anything", 0u, 0u, 0u, 0u, false));
 }
 
 TEST_F(SimpleHlsNotifierTest, NotifyEncryptionUpdateIdentityKey) {
@@ -455,7 +455,7 @@ TEST_P(SimpleHlsNotifierRebaseUrlTest, Test) {
   if (!test_data_.segment_path.empty()) {
     EXPECT_TRUE(test_notifier.NotifyNewSegment(
         stream_id, test_data_.segment_path, kAnyStartTime, kAnyDuration, 0,
-        kAnySize));
+        kAnySize, false));
   }
 }
 
@@ -574,7 +574,7 @@ TEST_P(LiveOrEventSimpleHlsNotifierTest, NotifyNewSegment) {
                                        "groupid", &stream_id));
 
   EXPECT_TRUE(notifier.NotifyNewSegment(stream_id, segment_name, kStartTime,
-                                        kDuration, 0, kSize));
+                                        kDuration, 0, kSize, false));
 }
 
 TEST_P(LiveOrEventSimpleHlsNotifierTest, NotifyNewSegmentsWithMultipleStreams) {
@@ -646,7 +646,7 @@ TEST_P(LiveOrEventSimpleHlsNotifierTest, NotifyNewSegmentsWithMultipleStreams) {
           _, _, ElementsAre(mock_media_playlist1, mock_media_playlist2)))
       .WillOnce(Return(true));
   EXPECT_TRUE(notifier.NotifyNewSegment(stream_id1, "segment_name", kStartTime,
-                                        kDuration, 0, kSize));
+                                        kDuration, 0, kSize, false));
 
   EXPECT_CALL(*mock_media_playlist2, AddSegment(_, _, _, _, _)).Times(1);
   EXPECT_CALL(*mock_media_playlist2, GetLongestSegmentDuration())
@@ -661,7 +661,7 @@ TEST_P(LiveOrEventSimpleHlsNotifierTest, NotifyNewSegmentsWithMultipleStreams) {
   EXPECT_CALL(*mock_master_playlist_ptr, WriteMasterPlaylist(_, _, _))
       .WillOnce(Return(true));
   EXPECT_TRUE(notifier.NotifyNewSegment(stream_id2, "segment_name", kStartTime,
-                                        kDuration, 0, kSize));
+                                        kDuration, 0, kSize, false));
 }
 
 INSTANTIATE_TEST_CASE_P(PlaylistTypes,

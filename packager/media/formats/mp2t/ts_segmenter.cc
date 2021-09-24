@@ -163,7 +163,8 @@ Status TsSegmenter::WritePesPackets() {
   return Status::OK;
 }
 
-Status TsSegmenter::FinalizeSegment(int64_t start_timestamp, int64_t duration) {
+Status TsSegmenter::FinalizeSegment(int64_t start_timestamp, int64_t duration,
+    bool is_discontinuous) {
   if (!pes_packet_generator_->Flush()) {
     return Status(error::MUXER_FAILURE, "Failed to flush PesPacketGenerator.");
   }
@@ -200,7 +201,8 @@ Status TsSegmenter::FinalizeSegment(int64_t start_timestamp, int64_t duration) {
     listener_->OnNewSegment(segment_path,
                             start_timestamp * timescale_scale_ +
                                 transport_stream_timestamp_offset_,
-                            duration * timescale_scale_, file_size);
+                            duration * timescale_scale_, file_size,
+                            is_discontinuous);
   }
   segment_started_ = false;
 

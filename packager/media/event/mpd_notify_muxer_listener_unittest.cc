@@ -390,9 +390,9 @@ TEST_F(MpdNotifyMuxerListenerTest, VodOnNewSegment) {
   listener_->OnMediaStart(muxer_options, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
   listener_->OnCueEvent(kStartTime2, "dummy cue data");
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
   InSequence s;
@@ -428,9 +428,9 @@ TEST_F(MpdNotifyMuxerListenerTest, VodOnNewSegmentSegmentList) {
   listener_->OnMediaStart(muxer_options, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
   listener_->OnCueEvent(kStartTime2, "dummy cue data");
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
   InSequence s;
@@ -479,7 +479,7 @@ TEST_F(MpdNotifyMuxerListenerTest, VodMultipleFiles) {
   listener_->OnMediaStart(muxer_options1, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
   listener_->OnCueEvent(kStartTime2, "dummy cue data");
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
@@ -498,7 +498,7 @@ TEST_F(MpdNotifyMuxerListenerTest, VodMultipleFiles) {
   listener_->OnMediaStart(muxer_options2, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
 
   // Expectation for second file OnMediaEnd.
   EXPECT_CALL(*notifier_,
@@ -541,7 +541,7 @@ TEST_F(MpdNotifyMuxerListenerTest, VodMultipleFilesSegmentList) {
   listener_->OnMediaStart(muxer_options1, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
   listener_->OnCueEvent(kStartTime2, "dummy cue data");
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
@@ -560,7 +560,7 @@ TEST_F(MpdNotifyMuxerListenerTest, VodMultipleFilesSegmentList) {
   listener_->OnMediaStart(muxer_options2, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
 
   // Expectation for second file OnMediaEnd.
   EXPECT_CALL(*notifier_,
@@ -637,9 +637,9 @@ TEST_P(MpdNotifyMuxerListenerTest, LiveNoKeyRotation) {
   listener_->OnMediaStart(muxer_options, *video_stream_info,
                           kDefaultReferenceTimeScale,
                           MuxerListener::kContainerMp4);
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
   listener_->OnCueEvent(kStartTime2, "dummy cue data");
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
   EXPECT_CALL(*notifier_, Flush())
@@ -712,8 +712,8 @@ TEST_P(MpdNotifyMuxerListenerTest, LiveWithKeyRotation) {
   listener_->OnEncryptionInfoReady(kNonInitialEncryptionInfo, FOURCC_cbc1,
                                    std::vector<uint8_t>(), iv,
                                    GetDefaultKeySystemInfo());
-  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1);
-  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2);
+  listener_->OnNewSegment("", kStartTime1, kDuration1, kSegmentFileSize1, false);
+  listener_->OnNewSegment("", kStartTime2, kDuration2, kSegmentFileSize2, false);
   ::testing::Mock::VerifyAndClearExpectations(notifier_.get());
 
   EXPECT_CALL(*notifier_, Flush())

@@ -20,8 +20,10 @@
 namespace shaka {
 namespace media {
 
-WebMMediaParser::WebMMediaParser()
-    : state_(kWaitingForInit), unknown_segment_size_(false) {}
+WebMMediaParser::WebMMediaParser(
+    std::shared_ptr<DiscontinuityTracker> discontinuity_tracker)
+    : MediaParser(discontinuity_tracker),
+      state_(kWaitingForInit), unknown_segment_size_(false) {}
 
 WebMMediaParser::~WebMMediaParser() {}
 
