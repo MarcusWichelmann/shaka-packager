@@ -77,7 +77,7 @@ class EsParserH26x : public EsParser {
 
   // Update the video decoder config.
   // Return true if successful.
-  virtual bool UpdateVideoDecoderConfig(int pps_id, int64_t dts) = 0;
+  virtual bool UpdateVideoDecoderConfig(int pps_id, int64_t pts) = 0;
 
   // Finds the NAL unit by finding the next start code.  This will modify the
   // search position.

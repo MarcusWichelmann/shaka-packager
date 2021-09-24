@@ -55,6 +55,7 @@ struct CueEvent {
 struct SegmentInfo {
   bool is_subsegment = false;
   bool is_encrypted = false;
+  bool is_discontinuous = false;
   int64_t start_timestamp = -1;
   int64_t duration = 0;
   // This is only available if key rotation is enabled. Note that we may have

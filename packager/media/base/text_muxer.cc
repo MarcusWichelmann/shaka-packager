@@ -49,7 +49,7 @@ Status TextMuxer::Finalize() {
 
     muxer_listener()->OnNewSegment(
         options().output_file_name, 0,
-        duration_seconds * streams()[0]->time_scale(), size);
+        duration_seconds * streams()[0]->time_scale(), size, false);
   }
 
   muxer_listener()->OnMediaEnd(ranges, duration_seconds);
@@ -79,13 +79,14 @@ Status TextMuxer::FinalizeSegment(size_t stream_id,
   const int64_t start = segment_info.start_timestamp;
   const int64_t duration = segment_info.duration;
   const uint32_t bandwidth = options().bandwidth;
+  const bool is_discontinuous = segment_info.is_discontinuous;
 
   const std::string filename =
       GetSegmentName(segment_template, start, index, bandwidth);
   uint64_t size;
   RETURN_IF_ERROR(WriteToFile(filename, &size));
 
-  muxer_listener()->OnNewSegment(filename, start, duration, size);
+  muxer_listener()->OnNewSegment(filename, start, duration, size, is_discontinuous);
   return Status::OK;
 }
 

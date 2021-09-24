@@ -166,7 +166,7 @@ Status SingleSegmentSegmenter::DoFinalize() {
   return Status::OK;
 }
 
-Status SingleSegmentSegmenter::DoFinalizeSegment() {
+Status SingleSegmentSegmenter::DoFinalizeSegment(bool is_discontinuous) {
   DCHECK(sidx());
   DCHECK(fragment_buffer());
   // sidx() contains pre-generated segment references with one reference per
@@ -226,7 +226,8 @@ Status SingleSegmentSegmenter::DoFinalizeSegment() {
     muxer_listener()->OnSampleDurationReady(sample_duration());
     muxer_listener()->OnNewSegment(options().output_file_name,
                                    vod_ref.earliest_presentation_time,
-                                   vod_ref.subsegment_duration, segment_size);
+                                   vod_ref.subsegment_duration, segment_size,
+                                   is_discontinuous);
   }
   return Status::OK;
 }

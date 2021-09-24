@@ -90,7 +90,8 @@ Status PackedAudioWriter::FinalizeSegment(size_t stream_id,
   if (muxer_listener()) {
     muxer_listener()->OnNewSegment(
         segment_path, segment_timestamp + transport_stream_timestamp_offset_,
-        segment_info.duration * segmenter_->TimescaleScale(), segment_size);
+        segment_info.duration * segmenter_->TimescaleScale(), segment_size,
+        segment_info.is_discontinuous);
   }
   return Status::OK;
 }

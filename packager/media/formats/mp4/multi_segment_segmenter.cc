@@ -67,8 +67,8 @@ Status MultiSegmentSegmenter::DoFinalize() {
   return Status::OK;
 }
 
-Status MultiSegmentSegmenter::DoFinalizeSegment() {
-  return WriteSegment();
+Status MultiSegmentSegmenter::DoFinalizeSegment(bool is_discontinuous) {
+  return WriteSegment(is_discontinuous);
 }
 
 Status MultiSegmentSegmenter::WriteInitSegment() {
@@ -87,7 +87,7 @@ Status MultiSegmentSegmenter::WriteInitSegment() {
   return buffer->WriteToFile(file.get());
 }
 
-Status MultiSegmentSegmenter::WriteSegment() {
+Status MultiSegmentSegmenter::WriteSegment(bool is_discontinuous) {
   DCHECK(sidx());
   DCHECK(fragment_buffer());
   DCHECK(styp_);
@@ -159,7 +159,8 @@ Status MultiSegmentSegmenter::WriteSegment() {
     muxer_listener()->OnSampleDurationReady(sample_duration());
     muxer_listener()->OnNewSegment(file_name,
                                    sidx()->earliest_presentation_time,
-                                   segment_duration, segment_size);
+                                   segment_duration, segment_size,
+                                   is_discontinuous);
   }
 
   return Status::OK;

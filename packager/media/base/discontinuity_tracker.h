@@ -9,15 +9,27 @@
 
 #include <memory>
 
+#include "packager/base/synchronization/lock.h"
+#include "packager/media/base/timestamp.h"
+
 namespace shaka {
 namespace media {
+
+const int32_t kThrottleThresholdMs = 1000;
 
 class DiscontinuityTracker {
  public:
   DiscontinuityTracker() = default;
   virtual ~DiscontinuityTracker() = default;
 
-  void TrackDecoderConfigChange(int64_t dts);
+  void TrackDecoderConfigChange(int64_t pts, int32_t time_scale);
+
+  int64_t GetLastDiscontinuity();
+
+ private:
+  base::Lock lock_;
+
+  int64_t last_discontinuity_pts_ = kNoTimestamp;
 };
 
 }  // namespace media

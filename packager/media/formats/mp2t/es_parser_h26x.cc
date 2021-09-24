@@ -308,7 +308,7 @@ bool EsParserH26x::EmitFrame(int64_t access_unit_pos,
   }
 
   // Update the video decoder configuration if needed.
-  RCHECK(UpdateVideoDecoderConfig(pps_id, current_timing_desc.dts));
+  RCHECK(UpdateVideoDecoderConfig(pps_id, current_timing_desc.pts));
 
   // Create the media sample, emitting always the previous sample after
   // calculating its duration.

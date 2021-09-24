@@ -33,7 +33,9 @@ class ChunkingHandlerTest : public MediaHandlerGraphTestBase {
  public:
   void SetUpChunkingHandler(int num_inputs,
                             const ChunkingParams& chunking_params) {
-    chunking_handler_.reset(new ChunkingHandler(chunking_params));
+    auto discontinuity_tracker = std::make_shared<DiscontinuityTracker>();
+    chunking_handler_.reset(new ChunkingHandler(chunking_params,
+        discontinuity_tracker));
     SetUpGraph(num_inputs, num_inputs, chunking_handler_);
     ASSERT_OK(chunking_handler_->Initialize());
   }

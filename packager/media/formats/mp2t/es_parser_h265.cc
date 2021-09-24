@@ -113,7 +113,7 @@ bool EsParserH265::ProcessNalu(const Nalu& nalu,
   return true;
 }
 
-bool EsParserH265::UpdateVideoDecoderConfig(int pps_id, int64_t dts) {
+bool EsParserH265::UpdateVideoDecoderConfig(int pps_id, int64_t pts) {
   // Update the video decoder configuration if needed.
   if (!decoder_config_check_pending_)
     return true;
@@ -154,7 +154,7 @@ bool EsParserH265::UpdateVideoDecoderConfig(int pps_id, int64_t dts) {
       last_video_decoder_config_->set_codec_config(decoder_config_record);
 
       // Track the stream discontinuity.
-      discontinuity_tracker_->TrackDecoderConfigChange(dts);
+      discontinuity_tracker_->TrackDecoderConfigChange(pts, kMpeg2Timescale);
     }
     return true;
   }

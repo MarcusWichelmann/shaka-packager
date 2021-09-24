@@ -667,7 +667,7 @@ Status CreateAudioVideoJobs(
       }
       if (!is_text) {
         handlers.emplace_back(std::make_shared<ChunkingHandler>(
-            packaging_params.chunking_params));
+            packaging_params.chunking_params, discontinuity_tracker));
         handlers.emplace_back(CreateEncryptionHandler(packaging_params, stream,
                                                       encryption_key_source));
       }

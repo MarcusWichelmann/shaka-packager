@@ -194,7 +194,8 @@ void HlsNotifyMuxerListener::OnMediaEnd(const MediaRanges& media_ranges,
                 stream_id_.value(), media_info_->media_file_name(),
                 event_info.segment_info.start_time,
                 event_info.segment_info.duration, range.start,
-                range.end + 1 - range.start);
+                range.end + 1 - range.start,
+                false);
           }
           ++subsegment_index;
           break;
@@ -228,7 +229,8 @@ void HlsNotifyMuxerListener::OnMediaEnd(const MediaRanges& media_ranges,
 void HlsNotifyMuxerListener::OnNewSegment(const std::string& file_name,
                                           int64_t start_time,
                                           int64_t duration,
-                                          uint64_t segment_file_size) {
+                                          uint64_t segment_file_size,
+                                          bool is_discontinuous) {
   if (!media_info_->has_segment_template()) {
     EventInfo event_info;
     event_info.type = EventInfoType::kSegment;
@@ -239,7 +241,7 @@ void HlsNotifyMuxerListener::OnNewSegment(const std::string& file_name,
     const size_t kStartingByteOffset = 0u;
     const bool result = hls_notifier_->NotifyNewSegment(
         stream_id_.value(), file_name, start_time, duration,
-        kStartingByteOffset, segment_file_size);
+        kStartingByteOffset, segment_file_size, is_discontinuous);
     LOG_IF(WARNING, !result) << "Failed to add new segment.";
   }
 }

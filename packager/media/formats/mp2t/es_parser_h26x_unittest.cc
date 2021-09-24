@@ -111,7 +111,7 @@ class TestableEsParser : public EsParserH26x {
     return true;
   }
 
-  bool UpdateVideoDecoderConfig(int pps_id, int64_t dts) override {
+  bool UpdateVideoDecoderConfig(int pps_id, int64_t pts) override {
     if (decoder_config_check_pending_) {
       EXPECT_EQ(kTestPpsId, pps_id);
       new_stream_info_cb_.Run(nullptr);

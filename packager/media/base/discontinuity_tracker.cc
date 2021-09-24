@@ -10,8 +10,20 @@
 namespace shaka {
 namespace media {
 
-void DiscontinuityTracker::TrackDecoderConfigChange(int64_t dts) {
-  LOG(INFO) << "Tracking discontinuity on dts " << dts;
+void DiscontinuityTracker::TrackDecoderConfigChange(int64_t pts, int32_t time_scale) {
+  base::AutoLock auto_lock(lock_);
+
+  if (pts <= last_discontinuity_pts_ + (time_scale / 1000 * kThrottleThresholdMs)) {
+    return;
+  }
+
+  LOG(INFO) << "Tracking discontinuity at pts " << pts;
+  last_discontinuity_pts_ = pts;
+}
+
+int64_t DiscontinuityTracker::GetLastDiscontinuity() {
+  base::AutoLock auto_lock(lock_);
+  return last_discontinuity_pts_;
 }
 
 }  // namespace media
