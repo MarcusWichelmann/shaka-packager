@@ -112,7 +112,14 @@ Status ChunkingHandler::OnMediaSample(
                                 : (timestamp - cue_offset_) / segment_duration_;
     if (!segment_start_time_ || is_discontinuous ||
         IsNewSegmentIndex(segment_index, current_segment_index_)) {
-      current_segment_index_ = segment_index;
+
+      // Don't update the current segment index when the segmentation was caused
+      // by a discontinuity to make sure that the following segment doesn't get
+      // longer than wanted
+      if (!is_discontinuous) {
+        current_segment_index_ = segment_index;
+      }
+
       // Reset subsegment index.
       current_subsegment_index_ = 0;
 
