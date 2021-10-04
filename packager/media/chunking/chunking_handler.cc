@@ -123,10 +123,11 @@ Status ChunkingHandler::OnMediaSample(
       // Reset subsegment index.
       current_subsegment_index_ = 0;
 
-      RETURN_IF_ERROR(EndSegmentIfStarted(is_discontinuous));
+      RETURN_IF_ERROR(EndSegmentIfStarted(current_segment_is_discontinuous_));
       segment_start_time_ = timestamp;
       subsegment_start_time_ = timestamp;
       max_segment_time_ = timestamp + sample->duration();
+      current_segment_is_discontinuous_ = is_discontinuous;
       started_new_segment = true;
     }
   }

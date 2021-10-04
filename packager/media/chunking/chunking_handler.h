@@ -85,6 +85,8 @@ class ChunkingHandler : public MediaHandler {
   // Current subsegment index, useful to determine where to do chunking.
   int64_t current_subsegment_index_ = -1;
 
+  bool current_segment_is_discontinuous_ = false;
+
   base::Optional<int64_t> segment_start_time_;
   base::Optional<int64_t> subsegment_start_time_;
   int64_t max_segment_time_ = 0;
